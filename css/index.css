@@ -1,0 +1,45 @@
+#PageHeader1, #textblock {
+   background-color: #00BFFF;
+}
+
+#content {
+   position:absolute;
+   left:30px;
+   top:120px;
+   width:500px;
+   height:450px;
+   z-index:0;
+   overflow:auto;
+}
+
+#error, #text, #datetime, #desc, #upload, #textblock {
+   font-family: Tahoma;
+   font-size: 16px;
+}
+
+#error, #text, #datetime, #desc, #upload {
+   color:#00BFFF;
+}
+
+#datetime, #desc, #upload {
+   border: 1px #00BFFF solid;
+   text-align: left;
+}
+
+#datetime, #desc, #upload, #textblock {
+   -moz-border-radius: 5px;
+   -webkit-border-radius: 5px;
+   border-radius: 5px;
+   vertical-align: middle;
+   width:100%;
+}
+#desc {
+   resize:none;
+}
+
+#textblock {
+   border:0px;
+   color :#FFFFFF;
+   text-align: center;
+}
+
