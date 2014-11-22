@@ -30,7 +30,9 @@
   Storage.prototype.DumpData = function(callback) {
     chrome.storage.local.get(function(content) {
       for(prop in content) {
-        callback(content[prop]);
+        for(ele in content[prop]) {
+          callback(content[prop][ele]);
+        }
       }
     });
   }

@@ -116,18 +116,23 @@
     return page;
   }
 
-  View.prototype.DispEvent = function(opts) {
+  View.prototype.Header = function(opts) {
     var page =
       '<div class="row fill">' +
-      App.Util.Replace
-      (
-           this.InputTemplate(),
-           {
+        App.Util.Replace
+        (
+            this.InputTemplate(),
+            {
               "{{id}}":opts["textId"],
-              "{{opts}}":"value='last event created' disabled"
-           }
-      )  +
-      '</div>'+
+              "{{opts}}":"value='" + opts["text"] +"'"
+            }
+        ) +
+      '</div>';
+    return page;
+  }
+
+  View.prototype.DispEvent = function(opts) {
+    var page =
       '<div class="row fill">' +
         '<div class="col-left">' +
           App.Util.Replace
