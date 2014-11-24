@@ -13,6 +13,11 @@
    float:left;
 }
 
+.col-opt {
+   width: 5%;
+   float: left;
+}
+
 .row-block {
    width: 95%;
    padding:5px;

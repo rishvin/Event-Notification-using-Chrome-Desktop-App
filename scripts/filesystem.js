@@ -75,5 +75,18 @@
     )
   }
 
+  Fs.prototype.RemoveFile = function(name) {
+    this.fs.root.getFile(
+        name,
+        {},
+        (function(fileEntry){
+          fileEntry.remove(function(){
+            console.log("File removed");
+          })
+        }),
+        function(e){ console.error(e); }
+    )
+  }
+
   window.App.Fs = Fs;
 })(window);

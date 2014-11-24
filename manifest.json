@@ -3,10 +3,13 @@
   "description": "Notification app.",
   "version": "1.0",
   "manifest_version": 2,
-  "permissions": ["images/*", "unlimitedStorage", "storage", "alarms", "notifications", "webview", "<all_urls>", { "fileSystem": ["write"] } ],
+  "permissions": ["unlimitedStorage", "storage", "alarms", "notifications", "webview", "<all_urls>", { "fileSystem": ["write"] } ],
   "app": {
     "background": {
       "scripts": ["background.js"]
     }
-  }   
+  },
+  "web_accessible_resources": [
+    "images/*"
+    ]
 }

@@ -45,4 +45,36 @@
     return temp;
   }
 
+  App.Util.AddListenerToType = function(eleType, evType, range, callback) {
+    for(var i = range[0]; i <= range[1]; ++i) {
+      $(eleType)[i].addEventListener(evType, callback);
+    }
+  }
+
+  App.Util.GetLink = function(target) {
+    var ele = target;
+    while(ele.href == undefined) {
+      ele = ele.parentElement;
+    }
+    return ele.href;
+  }
+
+  App.Util.GetElementFromIdRule = function(target, rule) {
+    var ele = target;
+    while(ele == undefined || rule(ele.id) == false) {
+      ele = ele.parentElement;
+    }
+    return ele;
+  }
+
+  App.Util.GenerateCanvas = function() {
+    var canvas = document.createElement("canvas");
+    canvas.width = 100;
+    canvas.height = 100;
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, 100, 100);
+    return canvas;
+  }
+
 })(window);

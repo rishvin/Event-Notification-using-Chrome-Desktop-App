@@ -20,7 +20,7 @@
   }
 
   View.prototype.ImageTemplate = function() {
-    return '<img src="{{link}}" {{opts}}>';
+    return '<img src="{{link}}" id="{{id}}" {{opts}}>';
   }
 
   View.prototype.CreatePage = function(opts) {
@@ -81,7 +81,7 @@
         App.Util.Replace(
           text,
           {
-            "{{text}}":"image"
+            "{{text}}":"image*"
           }
         ) +
       '</div>' +
@@ -133,26 +133,46 @@
 
   View.prototype.DispEvent = function(opts) {
     var page =
-      '<div class="row fill">' +
-        '<div class="col-left">' +
-          App.Util.Replace
-          (
-            this.ImageTemplate(),
-            {
-              "{{link}}":opts["imgUrl"],
-              "{{opts}}":"width='50%' height='50%'"
-            }
-          ) +
-        '</div>' +
-        '<div class="col-right">' +
-          App.Util.Replace
-          (
-            this.TextTemplate(),
-            {
-              "{{id}}": opts["textId"],
-              "{{text}}":opts["text"]
-            }
-          ) +
+      '<div id="' + opts["divId"] + '">' +
+        '<div class="row fill">' +
+          '<div class="col-left">' +
+            App.Util.Replace
+            (
+              this.ImageTemplate(),
+              {
+                "{{link}}":opts["imgUrl"],
+                "{{id}}": opts["imgId"],
+                "{{opts}}":"width='50%' height='50%'"
+              }
+            ) +
+          '</div>' +
+          '<div class="col-right">' +
+            App.Util.Replace
+            (
+              this.TextTemplate(),
+              {
+                "{{id}}": opts["textId"],
+                "{{text}}":opts["text"]
+              }
+            ) +
+          '</div>' +
+          '<div class="col-opt">' +
+            App.Util.Replace
+           (
+             this.LinkTemplate(),
+             {
+               "{{link}}":opts["linkUrl"],
+               "{{content}}":App.Util.Replace
+               (
+                 this.TextTemplate(),
+                   {
+                     "{{id}}"   : opts["linkId"],
+                     "{{text}}" : "[X]"
+                   }
+               )
+             }
+           )  +
+          '</div>' +
         '</div>' +
       '</div>';
     return page;

@@ -1,6 +1,8 @@
 (function(window) {
+
   function Storage() {
   }
+
   Storage.prototype.SaveData = function (key, value) {
     chrome.storage.local.get(key, function(val) {
       var newContent = [];
@@ -20,21 +22,32 @@
       }).bind(key));
     });
   }
+
   Storage.prototype.GetData = function(key, callback) {
     chrome.storage.local.get(key, (function(content) {
+      var data = [];
       for(prop in content[key]) {
-        callback(content[key][prop]);
+        data.push(content[key][prop]);
       }
+      callback(data);
     }).bind(key));
   }
+
   Storage.prototype.DumpData = function(callback) {
     chrome.storage.local.get(function(content) {
+      var data = [];
       for(prop in content) {
         for(ele in content[prop]) {
-          callback(content[prop][ele]);
+          data.push(content[prop][ele]);
         }
       }
+      callback(data);
     });
   }
+
+  Storage.prototype.RemoveData = function(key, callback) {
+    chrome.storage.local.remove(key, callback);
+  }
+
   window.App.Storage = Storage;
 })(window);

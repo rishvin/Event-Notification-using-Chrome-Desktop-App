@@ -26,7 +26,7 @@
 	var datetime = App.Util.GetValue("datetime");
 	console.log("Datetime: ", datetime);
 	if(datetime == "") {
-		App.Util.SetMsg("error", "date and time is invalid");
+		App.Util.SetMsg("error", "date and time are invalid");
 		return;
 	}
   	var tstamp = App.Util.GetTimeStamp(datetime);
@@ -44,60 +44,101 @@
   	this.storage.SaveData(alarmId, {"name":alarmId, "timestamp":tstamp, "description":desc});
 	var image = $$("#upload").files[0];
 	if(image == undefined) {
-      var obj = {"alarmId": alarmId, "this": this};
-	  image = new Image();
-	  image.src = "images/default.png";
-	  image.onload = (function() {
-		var blob = App.Util.ReturnBlob(image);
-		obj.this.fs.SaveFile(obj.alarmId, blob)
-	  }).bind(obj);
+      /*
+        var obj = {"alarmId": alarmId, "this": this};
+	    var canvas = App.Util.GenerateCanvas();
+	    image = new Image();
+	    image.src = canvas.toDataURL("image/png");
+	    image.onload = (function() {
+		  var blob = App.Util.ReturnBlob(image);
+		  obj.this.fs.SaveFile(obj.alarmId, blob)
+	    }).bind(obj);
+	  */
+	  App.Util.SetMsg("error", "image not selected");
+	  return;
 	}
 	else {
 	  var blob = App.Util.ReturnBlob(image);
 	  this.fs.SaveFile(alarmId, blob);
 	}
+	App.Util.SetMsg("error", "event can be removed by clicking on [X] button");
+  }
+
+  Controller.prototype.CbRemoveEvent = function() {
+	chrome.alarms.clear(this.ele.id, function(isCleared){ console.log("Alarm cleared :", isCleared); });
+	this.obj.fs.RemoveFile(this.ele.id);
+	var divEle = App.Util.GetElementFromIdRule(this.ele, function(id) { return id.indexOf("divALM") != -1 });
+	divEle.parentElement.removeChild(divEle);
   }
 
   Controller.prototype.EventHook = function(e){
-	var src = App.Util.GetSource(e.target.parentElement.href);
+	var src = App.Util.GetSource(App.Util.GetLink(e.target));
 	if(src == "create") {
-
+	  App.Util.SetMsg("error", "errors and messages will be displayed here");
 	  this.contentHolder.innerHTML = this.view.CreatePage(GetCreatePageParams());
-	  $("a")[0].addEventListener('click', this.EventHook.bind(this));
+	  App.Util.AddListenerToType("a", "click", [0, $("a").length - 3], this.EventHook.bind(this));
 	}
 	else if(src == "done") {
 	  this.CreateEvent();
 	}
 	else if(src == "show") {
-		this.ShowAllEvents();
+	  this.ShowAllEvents();
+	}
+	else if(src == "delete") {
+	  var ele = App.Util.GetElementFromIdRule(e.target, function(id) { return id.indexOf("ALM") != -1 });
+	  this.storage.RemoveData(
+		ele.id,
+		this.CbRemoveEvent.bind(
+		  {
+		    "ele"  : ele,
+		    "obj" : this
+		  }
+		)
+	  )
 	}
 	e.preventDefault();
   }
 
+  Controller.prototype.CbGetData = function(data) {
+
+	if(data.length) {
+	  App.Util.SetMsg("error", "event can be removed by clicking on [X] button");
+	}
+	else {
+      App.Util.SetMsg("error", "no event to show");
+	}
+
+	for (var i = 0; i < data.length; ++i) {
+	  this.contentHolder.innerHTML += this.view.DispEvent(
+	    {
+		  "divId"   : "div" + data[i].name,
+		  "textId"  : "textblock",
+		  "text"    : Date(data[i].timestamp) + '<br>' + data[i].description,
+		  "imgUrl"  : "",
+		  "imgId"   : "img" + data[i].name,
+		  "linkId"  : data[i].name,
+		  "linkUrl" : "#/delete"
+		}
+	  );
+	}
+
+	App.Util.AddListenerToType("a", "click", [0, $("a").length - 3], this.EventHook.bind(this));
+
+	for(var i = 0; i < data.length; ++i) {
+	  this.fs.GetFile(
+	    data[i].name,
+		(function (file) {
+		  $$("#img" + this.name).src = file;
+		}).bind(data[i]),
+		function (e) { console.error("Error:", e); }
+	  )
+	}
+
+  }
+
   Controller.prototype.ShowAllEvents = function() {
 	this.contentHolder.innerHTML = "";
-	this.storage.DumpData(
-	  (function (data) {
-		var obj = {};
-		obj.data = data;
-		obj.this = this;
-		this.fs.GetFile(
-		  data.name,
-		  (function (file) {
-			obj.this.contentHolder.innerHTML += obj.this.view.DispEvent(
-			  {
-			    "textId" : "textblock",
-				"text"   : Date(obj.data.timestamp) + '<br>' + obj.data.description,
-				"imgUrl" : file
-			  }
-			);
-			obj.count++;
-		  }).bind(obj),
-		  function (e) {console.error("Error:", e); }
-		  )
-	  }).bind(this)
-	);
-	App.Util.SetMsg("error", "events created will be displayed below");
+	this.storage.DumpData(this.CbGetData.bind(this));
   }
 
   Controller.prototype.ShowLastEvent = function(e) {
@@ -111,39 +152,20 @@
 	}
 	if (this.count == 2) {
 	  this.count = 0;
-	  this.storage.GetData(
-	    this.eventName,
-		(function (data) {
-		  console.log("came to data:", data);
-		  var obj = {};
-		  obj.data = data;
-		  obj.this = this;
-		  this.fs.GetFile(
-		    data.name,
-			(function (file) {
-			  obj.this.contentHolder.innerHTML = obj.this.view.CreatePage(GetCreatePageParams());
-			  obj.this.contentHolder.innerHTML += obj.this.view.Header(
-			    {
-				  "textId" : "textblock",
-				  "text"   : "last event created"
-				}
-		      );
-			  obj.this.contentHolder.innerHTML += obj.this.view.DispEvent(
-			    {
-				  "textId" : "textblock",
-				  "text"   : Date(obj.data.timestamp) + '<br>' + obj.data.description,
-				  "imgUrl" : file
-				}
-			  );
-			  $("a")[0].addEventListener('click', obj.this.EventHook.bind(obj.this));
-			}).bind(obj),
-			function (e) {console.error("Error:", e); }
-		  )
-		}).bind(this)
-	  )
+	  this.contentHolder.innerHTML = this.view.CreatePage(GetCreatePageParams());
+	  this.contentHolder.innerHTML += this.view.Header(
+	    {
+	      "textId" : "textblock",
+		  "text"   : "last event created"
+	   }
+	  );
+	  this.storage.GetData(this.eventName, this.CbGetData.bind(this));
 	  this.eventName = undefined;
 	}
   }
 
+  Controller.prototype.DeleteEvent = function (e) {
+		App.Util.SetMsg("error", "Clicked");
+  }
   window.App.Controller = Controller;
 })(window);
