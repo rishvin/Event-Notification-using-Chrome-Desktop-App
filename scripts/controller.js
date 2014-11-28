@@ -40,8 +40,6 @@
   	  return;
   	}
   	var alarmId = "ALM" + App.Util.GetTimeStamp("");
-  	chrome.alarms.create(alarmId, {when: tstamp});
-  	this.storage.SaveData(alarmId, {"name":alarmId, "timestamp":tstamp, "description":desc});
 	var image = $$("#upload").files[0];
 	if(image == undefined) {
       /*
@@ -57,10 +55,10 @@
 	  App.Util.SetMsg("error", "image not selected");
 	  return;
 	}
-	else {
-	  var blob = App.Util.ReturnBlob(image);
-	  this.fs.SaveFile(alarmId, blob);
-	}
+	chrome.alarms.create(alarmId, {when: tstamp});
+	var blob = App.Util.ReturnBlob(image);
+	this.fs.SaveFile(alarmId, blob);
+  	this.storage.SaveData(alarmId, {"name":alarmId, "timestamp":tstamp, "description":desc});
 	App.Util.SetMsg("error", "event can be removed by clicking on [X] button");
   }
 
